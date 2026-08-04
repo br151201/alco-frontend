@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create New Order - ALCo</title>
+    <style>
+        body {
+            background: #f5f5f5;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 500px;
+            margin: 40px auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        label {
+            font-weight: bold;
+            color: #333;
+            margin-top: 10px;
+            display: block;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 15px;
+            background: #fff;
+        }
+        button {
+            padding: 10px 15px;
+            background: #007bff;
+            border: none;
+            color: white;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #items_list div {
+            margin-top: 5px;
+        }
+        .autocomplete-box {
+            position: relative;
+        }
+        .autocomplete-results {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            width: 100%;
+            max-height: 150px;
+            overflow-y: auto;
+            z-index: 10;
+            border-radius: 5px;
+        }
+        .autocomplete-results div {
+            padding: 8px;
+            cursor: pointer;
+        }
+        .autocomplete-results div:hover {
+            background: #e9f7ff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2>Create New Order</h2>
+
+        <label>Sales Order ID</label>
+        <input type="number" id="order_id" readonly>
+
+        <label>Order Date</label>
+        <input type="date" id="order_date">
+
+        <label>Order Time</label>
+        <input type="time" id="order_time">
+
+        <label>Customer Name</label>
+        <input list="customer_list" id="customer_name" placeholder="Start typing...">
+        <datalist id="customer_list"></datalist>
+
+        <label>Address</label>
+        <input type="text" id="address">
+
+        <label>Email</label>
+        <input type="text" id="email">
+
+        <hr style="margin: 20px 0;">
+
+        <h3>Products</h3>
+
+        <label>Search Product</label>
+        <div class="autocomplete-box">
+            <input type="text" id="product_search" placeholder="Type product name...">
+            <div id="product_results" class="autocomplete-results"></div>
+        </div>
+
+        <label>Quantity</label>
+        <input type="number" id="quantity">
+
+        <button type="button" onclick="addProduct()">Add Product</button>
+
+        <div id="items_list" style="margin-top: 15px; font-weight: bold;"></div>
+
+        <hr style="margin: 20px 0;">
+        <label><strong>Special Requests / Comments:</strong></label>
+        <textarea id="comments" rows="4" placeholder="Enter any special instructions here..."></textarea>
+
+        <button type="button" onclick="createOrder()">Create Order</button>
+        <button type="button" onclick="history.back()">Back</button>
+    </div>
+
+<script>
+let items = [];
+let allProducts = [];
+
+// ⭐ Load next order ID + date/time
+async function generateOrderDetails() {
+    const now = new Date();
+
+    try {
+        const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/next-id");
+        const data = await res.json();
+        document.getElementById("order_id").value = data.order_id;
+    } catch (err) {
+        document.getElementById("order_id").value = "ERROR";
+    }
+
+    document.getElementById("order_date").value = now.toISOString().split("T")[0];
+    document.getElementById("order_time").value = now.toTimeString().split(" ")[0];
+}
+
+generateOrderDetails();
+
+// ⭐ Auto-fill customer details
+async function checkCustomerByName(name) {
+    const res = await fetch(`https://alco-backend-yabe.onrender.com/api/orders/find?name=${name}`);
+    const data = await res.json();
+
+    if (data) {
+        document.getElementById("address").value = data.address;
+        document.getElementById("email").value = data.email;
+    }
+}
+
+// ⭐ Load customers (remove duplicates)
+async function loadCustomers() {
+    const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/customers");
+    const customers = await res.json();
+
+    const uniqueNames = [...new Set(customers.map(c => c.name))];
+
+    const list = document.getElementById("customer_list");
+    list.innerHTML = "";
+
+    uniqueNames.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        list.appendChild(option);
+    });
+
+    document.getElementById("customer_name").addEventListener("change", () => {
+        checkCustomerByName(document.getElementById("customer_name").value);
+    });
+}
+
+loadCustomers();
+
+// ⭐ Load products for searchable typing
+async function loadProducts() {
+    try {
+        const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/products");
+        allProducts = await res.json();
+    } catch (err) {
+        console.error("PRODUCT LOAD ERROR:", err);
+    }
+}
+
+loadProducts();
+
+// ⭐ Searchable product typing
+document.getElementById("product_search").addEventListener("input", function () {
+    const query = this.value.toLowerCase();
+    const resultsBox = document.getElementById("product_results");
+
+    resultsBox.innerHTML = "";
+
+    if (!query) return;
+
+    const filtered = allProducts.filter(p =>
+        p.description.toLowerCase().includes(query)
+    );
+
+    filtered.forEach(p => {
+        const div = document.createElement("div");
+        div.textContent = `${p.description} (${p.unit_type})`;
+        div.onclick = () => {
+            document.getElementById("product_search").value = p.description;
+            resultsBox.innerHTML = "";
+        };
+        resultsBox.appendChild(div);
+    });
+});
+
+// ⭐ Add product to list
+function addProduct() {
+    const description = document.getElementById("product_search").value;
+    const quantity = Number(document.getElementById("quantity").value);
+
+    if (!description || !quantity) {
+        alert("Please select a product and enter quantity.");
+        return;
+    }
+
+    items.push({
+        description,
+        quantity
+    });
+
+    displayItems();
+}
+
+// ⭐ Display items correctly
+function displayItems() {
+    const list = document.getElementById("items_list");
+    list.innerHTML = "";
+
+    items.forEach((item, index) => {
+        list.innerHTML += `<div>${index + 1}. ${item.description} — Qty: ${item.quantity}</div>`;
+    });
+}
+
+// ⭐ Create order
+async function createOrder() {
+    const order_id = document.getElementById("order_id").value;
+    const order_date = document.getElementById("order_date").value;
+    const order_time = document.getElementById("order_time").value;
+    const customer_name = document.getElementById("customer_name").value;
+    const address = document.getElementById("address").value;
+    const email = document.getElementById("email").value;
+    const comments = document.getElementById("comments").value;
+
+    if (!customer_name || !address || !email || items.length === 0) {
+        alert("Please fill all fields and add at least one product.");
+        return;
+    }
+
+    const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/create", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            order_id,
+            order_date,
+            order_time,
+            customer_name,
+            address,
+            email,
+            items,
+            comments,
+            status: "Order Created"
+        })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert("Order created successfully!");
+        resetForm();
+        generateOrderDetails();
+    } else {
+        alert("Failed to create order.");
+    }
+}
+
+// ⭐ Reset form
+function resetForm() {
+    document.getElementById("customer_name").value = "";
+    document.getElementById("address").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("product_search").value = "";
+    document.getElementById("quantity").value = "";
+    document.getElementById("items_list").innerHTML = "";
+    document.getElementById("comments").value = "";
+    items = [];
+    generateOrderDetails();
+}
+</script>
+
+</body>
+</html>

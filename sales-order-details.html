@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sales Order Review (Warehouse)</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+</head>
+
+<body class="bg-light">
+
+<nav class="navbar navbar-light bg-white shadow-sm px-3 py-2">
+    <a class="navbar-brand d-flex align-items-center" href="warehouse-orders.html">
+        <img src="alco-logo.png" height="40" class="me-2">
+        <span class="fw-bold text-primary">Warehouse - Sales Order Review</span>
+    </a>
+</nav>
+
+<div class="container mt-4">
+    <h3 class="mb-3">Sales Order Details</h3>
+
+    <div id="order_box" class="card p-4 shadow-sm mb-3"></div>
+
+    <!-- ⭐ PRODUCT CHECKLIST SECTION -->
+    <div id="checklist_section">
+        <h5>Product Check List</h5>
+        <p class="text-muted">Tick each product that is available in the warehouse.</p>
+        <div id="items_checklist" class="mb-3"></div>
+    </div>
+
+    <!-- ⭐ DRIVER ASSIGN SECTION -->
+    <div id="driver_section">
+        <h5 class="mt-3">Assign Driver</h5>
+        <select id="driver_select" class="form-select mb-3">
+            <option value="">-- Select Driver --</option>
+        </select>
+    </div>
+
+    <!-- ⭐ CONFIRM BUTTON -->
+    <button id="confirm_btn" type="button" class="btn btn-success" onclick="confirmOrder()">Confirm & Send to Delivery</button>
+
+    <button class="btn btn-secondary mt-3" onclick="history.back()">Back</button>
+</div>
+
+<script>
+const urlParams = new URLSearchParams(window.location.search);
+const orderId = urlParams.get("id");
+
+let currentOrder = null;
+let orderLoaded = false;
+
+// ⭐ Load drivers
+async function loadDrivers() {
+    const res = await fetch("https://alco-backend-yabe.onrender.com/api/driver/list");
+    const data = await res.json();
+
+    const select = document.getElementById("driver_select");
+    select.innerHTML = '<option value="">-- Select Driver --</option>';
+
+    data.drivers.forEach(d => {
+        const opt = document.createElement("option");
+        opt.value = d.name;
+        opt.textContent = d.name;
+        select.appendChild(opt);
+    });
+}
+
+// ⭐ Load order details
+async function loadOrder() {
+    const res = await fetch(`https://alco-backend-yabe.onrender.com/api/orders/${orderId}`);
+    const order = await res.json();
+
+    if (!order) {
+        alert("Order not found.");
+        return;
+    }
+
+    if (typeof order.items === "string") {
+        order.items = JSON.parse(order.items);
+    }
+
+    currentOrder = order;
+    orderLoaded = true;
+
+    const box = document.getElementById("order_box");
+
+    box.innerHTML = `
+        <h5 class="mb-3">Order ID: ${order.order_id}</h5>
+
+        <p><strong>Customer:</strong> ${order.customer_name}</p>
+        <p><strong>Address:</strong> ${order.address}</p>
+        <p><strong>Email:</strong> ${order.email}</p>
+
+        <p><strong>Order Date:</strong> ${order.order_date}</p>
+        <p><strong>Order Time:</strong> ${order.order_time}</p>
+
+        <p><strong>Status:</strong> ${order.status}</p>
+
+        <div id="product_list">
+            <p><strong>Products:</strong></p>
+            <ul>
+                ${order.items.map(i => `
+                    <li>
+                        <strong>${i.description}</strong> — Qty: ${i.quantity}
+                    </li>
+                `).join("")}
+            </ul>
+        </div>
+    `;
+
+    const checklist = document.getElementById("items_checklist");
+    checklist.innerHTML = "";
+
+    order.items.forEach((item, index) => {
+        const div = document.createElement("div");
+        div.className = "form-check";
+
+        div.innerHTML = `
+            <div class="d-flex align-items-start gap-3">
+                <div>
+                    <input class="form-check-input" type="checkbox" id="item_${index}">
+                </div>
+
+                <div class="flex-grow-1">
+                    <label class="form-check-label" for="item_${index}">
+                        <strong>${item.description}</strong> — Ordered Qty: ${item.quantity}
+                    </label>
+                </div>
+
+                <div>
+                    <input type="number" class="form-control" id="qty_${index}" 
+                           placeholder="Enter actual qty" min="0" style="width:120px;">
+                </div>
+            </div>
+        `;
+
+        checklist.appendChild(div);
+    });
+
+    // ⭐ HIDE SECTIONS IF ORDER IS OUT FOR DELIVERY
+    if (order.status === "Out for Delivery") {
+        document.getElementById("product_list").style.display = "none";
+        document.getElementById("checklist_section").style.display = "none";
+        document.getElementById("driver_section").style.display = "none";
+        document.getElementById("confirm_btn").style.display = "none";
+
+        box.innerHTML += `
+            <div class="alert alert-info mt-3">
+                This order is already Out for Delivery. Warehouse actions are locked.
+            </div>
+        `;
+    }
+}
+
+// ⭐ Confirm order
+async function confirmOrder() {
+    if (!orderLoaded || !currentOrder) {
+        alert("Order is still loading. Try again.");
+        return;
+    }
+
+    const driverName = document.getElementById("driver_select").value;
+    if (!driverName) {
+        alert("Please select a driver.");
+        return;
+    }
+
+    const finalItems = [];
+
+    currentOrder.items.forEach((item, index) => {
+        const checked = document.getElementById(`item_${index}`).checked;
+        const qty = document.getElementById(`qty_${index}`).value;
+
+        if (checked) {
+            finalItems.push({
+                product: item.product,
+                quantity: qty || item.quantity,
+                description: item.description
+            });
+        }
+    });
+
+    if (finalItems.length === 0) {
+        alert("Please tick at least one product.");
+        return;
+    }
+
+    const res = await fetch(`https://alco-backend-yabe.onrender.com/api/orders/confirm/${orderId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            driver_name: driverName,
+            items: finalItems
+        })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+        alert("Order moved to Out for Delivery!");
+        window.location.href = "warehouse-orders.html";
+    } else {
+        alert("Error confirming order.");
+    }
+}
+
+loadOrder();
+loadDrivers();
+</script>
+
+</body>
+</html>
