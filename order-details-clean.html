@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sales Order Details - ALCo Components Ltd</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: #f7f9fc;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .details-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        .header-line {
+            border-bottom: 3px solid #0d6efd;
+            margin-bottom: 20px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .value {
+            color: #555;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-light bg-white shadow-sm px-3 py-2">
+    <a class="navbar-brand d-flex align-items-center" href="order-list.html">
+        <img src="alco-logo.png" height="40" class="me-2">
+        <span class="fw-bold text-primary">Sales Order Details</span>
+    </a>
+</nav>
+
+<div class="container mt-4">
+    <div id="order_box" class="details-card mx-auto" style="max-width: 900px;">
+        <h3 class="mb-3">Loading order details...</h3>
+    </div>
+
+    <button class="btn btn-secondary mt-3" onclick="history.back()">Back</button>
+</div>
+
+<script>
+async function loadOrderDetails() {
+    const params = new URLSearchParams(window.location.search);
+    const orderId = params.get("id");
+
+    const res = await fetch(`https://alco-backend-yabe.onrender.com/api/orders/${orderId}`);
+    const order = await res.json();
+
+    const box = document.getElementById("order_box");
+
+    // ⭐ Parse items
+    let items = order.items;
+    if (typeof items === "string") {
+        items = JSON.parse(items);
+    }
+
+    let productRows = items.map(item => `
+        <tr>
+            <td>${item.description}</td>
+            <td>${item.quantity}</td>
+        </tr>
+    `).join("");
+
+    // ⭐ Insert professional formatted HTML
+    box.innerHTML = `
+        <div class="text-center mb-4">
+            <img src="alco-logo.png" height="70" class="mb-2">
+            <h2 class="fw-bold">ALCo Components Ltd</h2>
+            <p class="text-muted">Suite 1 Majestic Building, Dewsbury, WF13 2BE</p>
+            <div class="header-line"></div>
+        </div>
+
+        <h3 class="fw-bold text-primary mb-3">Sales Order Details</h3>
+
+        <div class="row mb-4">
+            <div class="col-6">
+                <p><span class="label">Order ID:</span> <span class="value">${order.order_id}</span></p>
+                <p><span class="label">Customer:</span> <span class="value">${order.customer_name}</span></p>
+                <p><span class="label">Address:</span> <span class="value">${order.address}</span></p>
+                <p><span class="label">Email:</span> <span class="value">${order.email}</span></p>
+            </div>
+
+            <div class="col-6 text-end">
+                <p><span class="label">Order Date:</span> <span class="value">${order.order_date}</span></p>
+                <p><span class="label">Order Time:</span> <span class="value">${order.order_time}</span></p>
+                <p><span class="label">Status:</span> <span class="value">${order.status}</span></p>
+                <p><span class="label">Driver Assigned:</span> <span class="value">${order.driver_name || "Not Assigned"}</span></p>
+            </div>
+        </div>
+
+        <h5 class="fw-bold">Products</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Qty</th>
+                </tr>
+            </thead>
+            <tbody>${productRows}</tbody>
+        </table>
+
+        <hr class="mt-4">
+
+        <div class="text-center text-muted small">
+            <p>For any issues, contact <strong>info@alco-components.co.uk</strong></p>
+        </div>
+    `;
+}
+
+loadOrderDetails();
+</script>
+
+</body>
+</html>
