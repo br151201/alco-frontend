@@ -244,9 +244,8 @@ function displayItems() {
     });
 }
 
-// ⭐ Create order
 async function createOrder() {
-    const order_id = document.getElementById("order_id").value;
+    const order_id = Number(document.getElementById("order_id").value);
     const order_date = document.getElementById("order_date").value;
     const order_time = document.getElementById("order_time").value;
     const customer_name = document.getElementById("customer_name").value;
@@ -269,9 +268,8 @@ async function createOrder() {
             customer_name,
             address,
             email,
-            items,
-            comments,
-            status: "Order Created"
+            items,        // backend will JSON.stringify this
+            comments
         })
     });
 
@@ -283,9 +281,9 @@ async function createOrder() {
         generateOrderDetails();
     } else {
         alert("Failed to create order.");
+        console.log("ORDER ERROR:", data);
     }
 }
-
 // ⭐ Reset form
 function resetForm() {
     document.getElementById("customer_name").value = "";
