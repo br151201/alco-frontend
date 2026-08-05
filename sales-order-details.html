@@ -59,11 +59,12 @@ async function loadDrivers() {
 
     data.drivers.forEach(d => {
         const opt = document.createElement("option");
-        opt.value = d.name;
-        opt.textContent = d.name;
+        opt.value = d.drivername;   // FIXED
+        opt.textContent = d.drivername;  // FIXED
         select.appendChild(opt);
     });
 }
+
 
 // ⭐ Load order details
 async function loadOrder() {
