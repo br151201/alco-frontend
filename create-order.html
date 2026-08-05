@@ -275,15 +275,15 @@ async function createOrder() {
 
     const data = await res.json();
 
-    if (data.success) {
-        alert("Order created successfully!");
-        resetForm();
-        generateOrderDetails();
-    } else {
-        alert("Failed to create order.");
-        console.log("ORDER ERROR:", data);
-    }
+if (res.ok) {
+    alert("Order created successfully!");
+    resetForm();
+    generateOrderDetails();
+} else {
+    alert("Failed to create order.");
+    console.log("ORDER ERROR:", data);
 }
+
 // ⭐ Reset form
 function resetForm() {
     document.getElementById("customer_name").value = "";
