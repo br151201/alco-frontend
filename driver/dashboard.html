@@ -60,7 +60,8 @@
             console.log("Fetching deliveries for driver:", driverName, "ID:", driverId);
 
             // ⭐ Correct backend route
-            const res = await fetch(`${API_BASE}/api/driver/${driverId}/deliveries`);
+            const res = await fetch(`${API_BASE}/api/delivery-notes/driver/${driverId}`);
+
 
             if (!res.ok) {
                 throw new Error("Server returned " + res.status);
