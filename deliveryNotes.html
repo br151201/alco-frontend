@@ -17,7 +17,6 @@
             padding: 25px;
             box-shadow: 0 6px 18px rgba(0,0,0,0.08);
         }
-        
 
         canvas {
             border: 2px solid #ccc;
@@ -44,7 +43,7 @@
 <body>
 
 <nav class="navbar navbar-light bg-white shadow-sm px-3 py-2">
-    <a class="navbar-brand d-flex align-items-center" href="../order-list.html">
+    <a class="navbar-brand d-flex align-items-center" href="orders-list.html">
         <img src="alco-logo.png" height="40" class="me-2">
         <span class="fw-bold text-primary">ALCo Delivery Note</span>
     </a>
@@ -63,9 +62,8 @@
 const urlParams = new URLSearchParams(window.location.search);
 const orderId = urlParams.get("id");
 
-/// ⭐ LOCAL ONLY — FIXED API BASE
-let apiBase = "http://127.0.0.1:4000";
-
+// ⭐ PRODUCTION API BASE (Render)
+let apiBase = "https://alco-backend-yabe.onrender.com";
 
 if (!orderId || orderId === "null") {
     alert("Error: No order ID provided.");
@@ -77,7 +75,7 @@ async function loadDeliveryNote() {
     const note = await res.json();
     const box = document.getElementById("note_box");
 
-    if (!note) {
+    if (!note || note.error) {
         box.innerHTML = `<div class="alert alert-danger">Delivery note not found.</div>`;
         return;
     }
@@ -189,7 +187,7 @@ async function loadDeliveryNote() {
     if (note.delivery_status !== "Delivered") setupPads();
 }
 
-// ⭐ SIGNATURE PAD (Customer only)
+// ⭐ SIGNATURE PAD
 let customerPad, customerCtx, drawingCustomer = false;
 
 function setupPads() {
@@ -249,15 +247,6 @@ async function markDelivered() {
 }
 
 loadDeliveryNote();
-</script>
-
-<!-- ⭐ Disable service worker during LOCAL development -->
-<script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.getRegistrations().then(regs => {
-        regs.forEach(reg => reg.unregister());
-    });
-}
 </script>
 
 </body>
