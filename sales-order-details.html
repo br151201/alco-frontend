@@ -28,10 +28,12 @@
 
     <!-- ⭐ DRIVER ASSIGN SECTION -->
     <div id="driver_section">
-        <h5 class="mt-3">Assign Driver</h5>
+        <h5 class="mt-3">Assign / Reassign Driver</h5>
         <select id="driver_select" class="form-select mb-3">
             <option value="">-- Select Driver --</option>
         </select>
+
+        <button id="reassign_btn" class="btn btn-warning mb-3" onclick="unlockDriver()">Reassign Driver</button>
     </div>
 
     <!-- ⭐ CONFIRM BUTTON -->
@@ -135,22 +137,33 @@ async function loadOrder() {
         checklist.appendChild(div);
     });
 
-    // ⭐ HIDE SECTIONS IF ORDER IS OUT FOR DELIVERY
+    // ⭐ UPDATED LOGIC — Allow driver reassignment ANYTIME
     if (order.status === "Out for Delivery") {
+        // Lock product checklist
         document.getElementById("product_list").style.display = "none";
         document.getElementById("checklist_section").style.display = "none";
-        document.getElementById("driver_section").style.display = "none";
-        document.getElementById("confirm_btn").style.display = "none";
+
+        // Keep driver section visible
+        document.getElementById("driver_section").style.display = "block";
+
+        // Change button text
+        document.getElementById("confirm_btn").textContent = "Update Driver";
 
         box.innerHTML += `
             <div class="alert alert-info mt-3">
-                This order is already Out for Delivery. Warehouse actions are locked.
+                This order is Out for Delivery. Product changes are locked, but driver can be reassigned.
             </div>
         `;
     }
 }
 
-// ⭐ Confirm order
+// ⭐ Unlock driver dropdown
+function unlockDriver() {
+    document.getElementById("driver_select").disabled = false;
+    alert("Driver reassignment unlocked.");
+}
+
+// ⭐ Confirm order or update driver
 async function confirmOrder() {
     if (!orderLoaded || !currentOrder) {
         alert("Order is still loading. Try again.");
@@ -163,24 +176,27 @@ async function confirmOrder() {
         return;
     }
 
-    const finalItems = [];
+    let finalItems = [];
 
-    currentOrder.items.forEach((item, index) => {
-        const checked = document.getElementById(`item_${index}`).checked;
-        const qty = document.getElementById(`qty_${index}`).value;
+    // Only use checklist if order is NOT Out for Delivery
+    if (currentOrder.status !== "Out for Delivery") {
+        currentOrder.items.forEach((item, index) => {
+            const checked = document.getElementById(`item_${index}`).checked;
+            const qty = document.getElementById(`qty_${index}`).value;
 
-        if (checked) {
-            finalItems.push({
-                product: item.product,
-                quantity: qty || item.quantity,
-                description: item.description
-            });
+            if (checked) {
+                finalItems.push({
+                    product: item.product,
+                    quantity: qty || item.quantity,
+                    description: item.description
+                });
+            }
+        });
+
+        if (finalItems.length === 0) {
+            alert("Please tick at least one product.");
+            return;
         }
-    });
-
-    if (finalItems.length === 0) {
-        alert("Please tick at least one product.");
-        return;
     }
 
     const res = await fetch(`https://alco-backend-yabe.onrender.com/api/orders/confirm/${orderId}`, {
@@ -195,10 +211,10 @@ async function confirmOrder() {
     const data = await res.json();
 
     if (data.success) {
-        alert("Order moved to Out for Delivery!");
+        alert("Driver updated successfully!");
         window.location.href = "warehouse-orders.html";
     } else {
-        alert("Error confirming order.");
+        alert("Error updating order.");
     }
 }
 
@@ -208,4 +224,3 @@ loadDrivers();
 
 </body>
 </html>
-this is the code update the code
