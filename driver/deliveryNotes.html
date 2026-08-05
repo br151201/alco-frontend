@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Driver Delivery Note - ALCo Components Ltd</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: #f7f9fc;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .note-card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+        }
+
+        canvas {
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .table th {
+            background: #f1f1f1;
+        }
+
+        .header-line {
+            border-bottom: 3px solid #0d6efd;
+            margin-bottom: 20px;
+        }
+
+        .check-col {
+            width: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-light bg-white shadow-sm px-3 py-2">
+    <a class="navbar-brand d-flex align-items-center" href="dashboard.html">
+        <img src="../alco-logo.png" height="40" class="me-2">
+        <span class="fw-bold text-primary">Driver Delivery Note</span>
+    </a>
+</nav>
+
+<div class="container mt-4">
+    <div id="note_box" class="note-card mx-auto" style="max-width: 900px;">
+        <h3 class="note-title mb-3">Delivery Note</h3>
+        <p class="text-muted">Loading delivery note...</p>
+    </div>
+
+    <button class="btn btn-secondary mt-3" onclick="history.back()">Back</button>
+</div>
+
+<script src="driver.js"></script>
+<script>
+loadDriverNote();
+</script>
+
+</body>
+</html>
