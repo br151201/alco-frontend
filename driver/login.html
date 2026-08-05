@@ -18,7 +18,44 @@
     </div>
 </div>
 
-<script src="drivers.js"></script>
+<script>
+    const API_BASE = "https://alco-backend-yabe.onrender.com";
+
+    async function driverLogin() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        if (!email || !password) {
+            alert("Please enter email and password");
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/api/driver/login-email`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await res.json();
+
+            if (data.success) {
+                // Save driver identity
+                localStorage.setItem("driverId", data.driver_id);
+                localStorage.setItem("driverName", data.driver_name);
+
+                // Redirect to dashboard
+                window.location.href = "dashboard.html";
+            } else {
+                alert("Invalid email or password");
+            }
+
+        } catch (err) {
+            console.error("LOGIN ERROR:", err);
+            alert("Login failed. Server error.");
+        }
+    }
+</script>
 
 </body>
 </html>
