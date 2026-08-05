@@ -40,12 +40,11 @@
             const data = await res.json();
 
             if (data.success) {
-                // Save driver identity
                 localStorage.setItem("driver_id", data.driver_id);
                 localStorage.setItem("driver_name", data.driver_name);
 
-                // ⭐ FIXED REDIRECT
-                window.location.href = "driver/driver-dashboard.html";
+                // ⭐ FINAL FIX — correct redirect
+                window.location.href = "driver-dashboard.html";
             } else {
                 alert(data.error || "Invalid email or password");
             }
