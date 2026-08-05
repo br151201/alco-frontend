@@ -275,7 +275,7 @@ async function createOrder() {
 
     const data = await res.json();
 
-if (res.ok) {
+if (data.success) {
     alert("Order created successfully!");
     resetForm();
     generateOrderDetails();
@@ -283,6 +283,7 @@ if (res.ok) {
     alert("Failed to create order.");
     console.log("ORDER ERROR:", data);
 }
+
 
 // ⭐ Reset form
 function resetForm() {
