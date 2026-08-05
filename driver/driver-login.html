@@ -31,7 +31,7 @@
         }
 
         try {
-            const res = await fetch(`${API_BASE}/api/login`, {
+            const res = await fetch(`${API_BASE}/api/driver/login`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, password })
@@ -39,12 +39,12 @@
 
             const data = await res.json();
 
-            if (res.ok) {
-                // Save driver identity EXACTLY as backend returns
+            if (data.success) {
+                // Save driver identity
                 localStorage.setItem("driver_id", data.driver_id);
-                localStorage.setItem("drivername", data.drivername);
+                localStorage.setItem("driver_name", data.driver_name);
 
-                // Redirect to dashboard
+                // Redirect to driver dashboard
                 window.location.href = "dashboard.html";
             } else {
                 alert(data.error || "Invalid email or password");
@@ -56,7 +56,6 @@
         }
     }
 </script>
-
 
 </body>
 </html>
