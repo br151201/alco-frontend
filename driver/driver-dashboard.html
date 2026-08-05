@@ -6,7 +6,7 @@
 
     // ⭐ Correct driver identity keys
     const driverId = localStorage.getItem("driver_id");
-    const driverName = localStorage.getItem("drivername");
+    const driverName = localStorage.getItem("driver_name"); // FIXED
 
     /* ---------------------------------------------------------
        LOGIN CHECK
@@ -15,20 +15,10 @@
         alert("Driver not logged in.");
         window.location.href = "driver-login.html";
     }
-<script>
-    const API_BASE = "https://alco-backend-yabe.onrender.com";
 
-    // ⭐ Correct driver identity keys
-    const driverId = localStorage.getItem("driver_id");
-    const driverName = localStorage.getItem("driver_name"); // FIXED
-
-    // ⭐ LOGIN CHECK
-    if (!driverId || !driverName) {
-        alert("Driver not logged in.");
-        window.location.href = "driver-login.html";
-    }
-
-    // ⭐ LOAD DELIVERIES FOR THIS DRIVER
+    /* ---------------------------------------------------------
+       LOAD DELIVERIES FOR THIS DRIVER
+    --------------------------------------------------------- */
     async function loadDeliveries() {
         try {
             console.log("Fetching deliveries for driver:", driverName);
@@ -37,7 +27,6 @@
             const res = await fetch(`${API_BASE}/api/delivery-notes/driver/${driverName}`);
 
             const data = await res.json();
-
             const deliveries = data.deliveries || data.notes || [];
 
             const list = document.getElementById("delivery_list");
@@ -69,66 +58,11 @@
         }
     }
 
-    // ⭐ OPEN DELIVERY NOTE
-    function openDelivery(noteId) {
-        window.location.href = `deliveryNotes.html?id=${noteId}`;
-    }
-
-    // ⭐ RUN ON PAGE LOAD
-    document.addEventListener("DOMContentLoaded", loadDeliveries);
-</script>
-
-    /* ---------------------------------------------------------
-       LOAD DELIVERIES FOR THIS DRIVER
-    --------------------------------------------------------- */
-    async function loadDeliveries() {
-        try {
-            console.log("Fetching deliveries for driver:", driverName, "ID:", driverId);
-
-            // ⭐ Correct backend route
-            const res = await fetch(`${API_BASE}/api/deliveries/driver/${driverId}`);
-
-            if (!res.ok) {
-                throw new Error("Server returned " + res.status);
-            }
-
-            const deliveries = await res.json();
-            console.log("Deliveries received:", deliveries);
-
-            const list = document.getElementById("delivery_list");
-            list.innerHTML = "";
-
-            if (!Array.isArray(deliveries) || deliveries.length === 0) {
-                list.innerHTML = `<div class="alert alert-info">No deliveries assigned.</div>`;
-                return;
-            }
-
-            deliveries.forEach(d => {
-                list.innerHTML += `
-                    <div class="delivery-card">
-                        <h5 class="fw-bold">Order #${d.order_id}</h5>
-
-                        <p><strong>Customer:</strong> ${d.customer_name}</p>
-                        <p><strong>Address:</strong> ${d.address}</p>
-
-                        <button class="btn btn-primary mt-3" onclick="openDelivery(${d.order_id})">
-                            View Delivery Note
-                        </button>
-                    </div>
-                `;
-            });
-
-        } catch (err) {
-            console.error("Error loading deliveries:", err);
-            alert("Failed to load deliveries.");
-        }
-    }
-
     /* ---------------------------------------------------------
        OPEN DELIVERY NOTE
     --------------------------------------------------------- */
-    function openDelivery(orderId) {
-        window.location.href = `deliveryNotes.html?id=${orderId}`;
+    function openDelivery(noteId) {
+        window.location.href = `deliveryNotes.html?id=${noteId}`;
     }
 
     /* ---------------------------------------------------------
