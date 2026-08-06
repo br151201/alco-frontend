@@ -46,13 +46,14 @@ async function getDriverName() {
         const driver = await res.json();
         console.log("Driver record:", driver);
 
-        return driver.name;   // <-- use 'name' column from your DB
+        return driver.name;   // <-- FIXED
     } catch (err) {
         console.error(err);
         alert("Could not load driver information.");
         return null;
     }
 }
+
 
 // 2️⃣ Load deliveries using the driver name from Neon
 async function loadDeliveries() {
