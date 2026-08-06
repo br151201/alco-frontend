@@ -36,19 +36,19 @@
     <script>
     const API_BASE = "https://alco-backend-yabe.onrender.com";
 
-   
     const driverName = localStorage.getItem("driver_name");
 
-        if (!driverName) {
+    if (!driverName) {
         alert("Driver not logged in.");
         window.location.href = "driver-login.html";
     }
+
     async function loadDeliveries() {
         try {
             console.log("Fetching deliveries for driver:", driverName);
 
-            // ⭐ Correct backend route
-            const res = await fetch(`${API_BASE}/api/delivery-notes/driver/${driverName}`);
+            // ⭐ Correct backend route (deliveries.js)
+            const res = await fetch(`${API_BASE}/api/deliveries/driver/${driverName}`);
 
             const deliveries = await res.json();
             console.log("Deliveries received:", deliveries);
@@ -56,7 +56,8 @@
             const list = document.getElementById("delivery_list");
             list.innerHTML = "";
 
-            iif (!Array.isArray(deliveries) || deliveries.length === 0) {
+            // ⭐ FIXED TYPO (iif → if)
+            if (!Array.isArray(deliveries) || deliveries.length === 0) {
                 list.innerHTML = `<div class="alert alert-info">No deliveries assigned.</div>`;
                 return;
             }
@@ -81,12 +82,14 @@
             alert("Failed to load deliveries.");
         }
     }
+
     function openDelivery(orderId) {
         window.location.href = `deliveryNotes.html?id=${orderId}`;
     }
 
     document.addEventListener("DOMContentLoaded", loadDeliveries);
 </script>
+
 <script src="driver-dashboard.js"></script>
 </body>
 </html>
