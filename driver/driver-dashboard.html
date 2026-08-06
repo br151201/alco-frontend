@@ -61,29 +61,30 @@ async function loadDeliveries() {
     if (!driverName) return;
 
     try {
-        console.log("Fetching deliveries for:", driverName);
+        console.log("Fetching orders for:", driverName);
 
-        const res = await fetch(`${API_BASE}/api/deliveries/driver/${driverName}`);
+        const res = await fetch(`${API_BASE}/api/orders/driver/${driverName}`);
         if (!res.ok) throw new Error("Server returned " + res.status);
 
-        const deliveries = await res.json();
-        console.log("Deliveries received:", deliveries);
+        const orders = await res.json();
+        console.log("Orders received:", orders);
 
         const list = document.getElementById("delivery_list");
         list.innerHTML = "";
 
-        if (!Array.isArray(deliveries) || deliveries.length === 0) {
-            list.innerHTML = `<div class="alert alert-info">No deliveries assigned.</div>`;
+        if (!Array.isArray(orders) || orders.length === 0) {
+            list.innerHTML = `<div class="alert alert-info">No orders assigned.</div>`;
             return;
         }
 
-        deliveries.forEach(d => {
+        orders.forEach(o => {
             list.innerHTML += `
                 <div class="delivery-card">
-                    <h5 class="fw-bold">Order #${d.order_id}</h5>
-                    <p><strong>Customer:</strong> ${d.customer_name}</p>
-                    <p><strong>Address:</strong> ${d.address}</p>
-                    <button class="btn btn-primary mt-3" onclick="openDelivery(${d.order_id})">
+                    <h5 class="fw-bold">Order #${o.order_id}</h5>
+                    <p><strong>Customer:</strong> ${o.customer_name}</p>
+                    <p><strong>Address:</strong> ${o.address}</p>
+                    <p><strong>Status:</strong> ${o.status}</p>
+                    <button class="btn btn-primary mt-3" onclick="openDelivery(${o.order_id})">
                         View Delivery Note
                     </button>
                 </div>
@@ -91,10 +92,11 @@ async function loadDeliveries() {
         });
 
     } catch (err) {
-        console.error("Error loading deliveries:", err);
-        alert("Failed to load deliveries.");
+        console.error("Error loading orders:", err);
+        alert("Failed to load orders.");
     }
 }
+
 
 function openDelivery(orderId) {
     window.location.href = `deliveryNotes.html?id=${orderId}`;
