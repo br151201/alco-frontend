@@ -44,44 +44,48 @@
     }
 
     async function loadDeliveries() {
-        try {
-            console.log("Fetching deliveries for driver:", driverName);
+    try {
+        console.log("Driver name from localStorage:", driverName);
 
-            // ⭐ Correct backend route (deliveries.js)
-            const res = await fetch(`${API_BASE}/api/deliveries/driver/${driverName}`);
+        const url = `${API_BASE}/api/deliveries/driver/${driverName}`;
+        console.log("API URL:", url);
 
-            const deliveries = await res.json();
-            console.log("Deliveries received:", deliveries);
+        const res = await fetch(url);
+        console.log("Raw response:", res);
 
-            const list = document.getElementById("delivery_list");
-            list.innerHTML = "";
+        const deliveries = await res.json();
+        console.log("Deliveries JSON:", deliveries);
 
-            // ⭐ FIXED TYPO (iif → if)
-            if (!Array.isArray(deliveries) || deliveries.length === 0) {
-                list.innerHTML = `<div class="alert alert-info">No deliveries assigned.</div>`;
-                return;
-            }
+        alert("Deliveries count: " + (deliveries?.length || 0));
 
-            deliveries.forEach(d => {
-                list.innerHTML += `
-                    <div class="delivery-card">
-                        <h5 class="fw-bold">Order #${d.order_id}</h5>
+        const list = document.getElementById("delivery_list");
+        list.innerHTML = "";
 
-                        <p><strong>Customer:</strong> ${d.customer_name}</p>
-                        <p><strong>Address:</strong> ${d.address}</p>
-
-                        <button class="btn btn-primary mt-3" onclick="openDelivery(${d.order_id})">
-                            View Delivery Note
-                        </button>
-                    </div>
-                `;
-            });
-
-        } catch (err) {
-            console.error("Error loading deliveries:", err);
-            alert("Failed to load deliveries.");
+        if (!Array.isArray(deliveries) || deliveries.length === 0) {
+            list.innerHTML = `<div class="alert alert-info">No deliveries assigned.</div>`;
+            return;
         }
+
+        deliveries.forEach(d => {
+            console.log("Rendering delivery:", d);
+
+            list.innerHTML += `
+                <div class="delivery-card">
+                    <h5 class="fw-bold">Order #${d.order_id}</h5>
+                    <p><strong>Customer:</strong> ${d.customer_name}</p>
+                    <p><strong>Address:</strong> ${d.address}</p>
+                    <button class="btn btn-primary mt-3" onclick="openDelivery(${d.order_id})">
+                        View Delivery Note
+                    </button>
+                </div>
+            `;
+        });
+
+    } catch (err) {
+        console.error("Error loading deliveries:", err);
+        alert("Failed to load deliveries.");
     }
+}
 
     function openDelivery(orderId) {
         window.location.href = `deliveryNotes.html?id=${orderId}`;
