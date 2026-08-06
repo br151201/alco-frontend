@@ -34,13 +34,11 @@
     <div id="delivery_list"></div>
 </div>
 
-<!-- Inline script (works fine) -->
 <script>
     const API_BASE = "https://alco-backend-yabe.onrender.com";
 
     const driverName = localStorage.getItem("driver_name");
 
-    // Redirect if not logged in
     if (!driverName) {
         alert("Driver not logged in.");
         window.location.href = "driver-login.html";
@@ -95,7 +93,6 @@
     document.addEventListener("DOMContentLoaded", loadDeliveries);
 </script>
 
-<!-- External JS file (now loads correctly) -->
 <script src="driver-dashboard.js"></script>
 
 </body>
