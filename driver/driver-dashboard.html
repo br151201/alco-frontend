@@ -33,23 +33,23 @@
     <h4 class="mb-3">Assigned Deliveries</h4>
     <div id="delivery_list"></div>
 </div>
-    <script>
+
+<!-- Inline script (works fine) -->
+<script>
     const API_BASE = "https://alco-backend-yabe.onrender.com";
 
     const driverName = localStorage.getItem("driver_name");
 
-    // ⭐ If driver not logged in → redirect
+    // Redirect if not logged in
     if (!driverName) {
         alert("Driver not logged in.");
         window.location.href = "driver-login.html";
     }
 
-    // ⭐ Load deliveries assigned to this driver
     async function loadDeliveries() {
         try {
             console.log("Fetching deliveries for:", driverName);
 
-            // ⭐ CORRECT ROUTE — delivery_notes, not orders
             const res = await fetch(`${API_BASE}/api/deliveries/driver/${driverName}`);
 
             if (!res.ok) {
@@ -92,9 +92,11 @@
         window.location.href = `deliveryNotes.html?id=${orderId}`;
     }
 
-    // ⭐ Load deliveries on page load
     document.addEventListener("DOMContentLoaded", loadDeliveries);
 </script>
+
+<!-- External JS file (now loads correctly) -->
 <script src="driver-dashboard.js"></script>
+
 </body>
 </html>
