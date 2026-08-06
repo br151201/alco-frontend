@@ -1,38 +1,27 @@
 <script>
-    /* ---------------------------------------------------------
-       CONFIG
-    --------------------------------------------------------- */
     const API_BASE = "https://alco-backend-yabe.onrender.com";
 
-    // ⭐ Correct driver identity keys
     const driverId = localStorage.getItem("driver_id");
-    const driverName = localStorage.getItem("driver_name"); // FIXED
+    const driverName = localStorage.getItem("driver_name");
 
-    /* ---------------------------------------------------------
-       LOGIN CHECK
-    --------------------------------------------------------- */
     if (!driverId || !driverName) {
         alert("Driver not logged in.");
         window.location.href = "driver-login.html";
     }
 
-    /* ---------------------------------------------------------
-       LOAD DELIVERIES FOR THIS DRIVER
-    --------------------------------------------------------- */
     async function loadDeliveries() {
         try {
             console.log("Fetching deliveries for driver:", driverName);
 
-            // ⭐ Correct backend route (backend expects driverName)
-            const res = await fetch(`${API_BASE}/api/delivery-notes/driver/${driverName}`);
+            // ⭐ Correct backend route
+            const res = await fetch(`${API_BASE}/api/delivery-notes/driver/name/${driverName}`);
 
-            const data = await res.json();
-            const deliveries = data.deliveries || data.notes || [];
+            const deliveries = await res.json();
 
             const list = document.getElementById("delivery_list");
             list.innerHTML = "";
 
-            if (deliveries.length === 0) {
+            if (!deliveries || deliveries.length === 0) {
                 list.innerHTML = `<div class="alert alert-info">No deliveries assigned.</div>`;
                 return;
             }
@@ -45,7 +34,7 @@
                         <p><strong>Customer:</strong> ${d.customer_name}</p>
                         <p><strong>Address:</strong> ${d.address}</p>
 
-                        <button class="btn btn-primary mt-3" onclick="openDelivery(${d.id})">
+                        <button class="btn btn-primary mt-3" onclick="openDelivery(${d.delivery_note_id})">
                             View Delivery Note
                         </button>
                     </div>
@@ -58,15 +47,9 @@
         }
     }
 
-    /* ---------------------------------------------------------
-       OPEN DELIVERY NOTE
-    --------------------------------------------------------- */
     function openDelivery(noteId) {
         window.location.href = `deliveryNotes.html?id=${noteId}`;
     }
 
-    /* ---------------------------------------------------------
-       RUN ON PAGE LOAD
-    --------------------------------------------------------- */
     document.addEventListener("DOMContentLoaded", loadDeliveries);
 </script>
