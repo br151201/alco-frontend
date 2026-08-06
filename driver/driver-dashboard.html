@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Driver Dashboard - ALCo"</title>
+    <title>Driver Dashboard - ALCo</title>
 
     <link rel="manifest" href="manifest.json">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
@@ -37,14 +37,6 @@
 <script>
 const API_BASE = "https://alco-backend-yabe.onrender.com";
 
-const driverName = localStorage.getItem("driver_name");
-if (!driverName) {
-    window.location.href = "driver-login.html";
-}
-
-<script>
-const API_BASE = "https://alco-backend-yabe.onrender.com";
-
 // 1️⃣ Fetch driver info from backend instead of localStorage
 async function getDriverName() {
     try {
@@ -54,7 +46,7 @@ async function getDriverName() {
         const driver = await res.json();
         console.log("Driver record:", driver);
 
-        return driver.driver_name;   // <-- IMPORTANT
+        return driver.name;   // <-- use 'name' column from your DB
     } catch (err) {
         console.error(err);
         alert("Could not load driver information.");
@@ -109,14 +101,6 @@ function openDelivery(orderId) {
 
 document.addEventListener("DOMContentLoaded", loadDeliveries);
 </script>
-
-function openDelivery(orderId) {
-    window.location.href = `deliveryNotes.html?id=${orderId}`;
-}
-
-document.addEventListener("DOMContentLoaded", loadDeliveries);
-</script>
-
 
 </body>
 </html>
