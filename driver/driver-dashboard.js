@@ -16,7 +16,7 @@ async function loadDeliveries() {
     try {
         console.log("Fetching deliveries for:", driverName);
 
-        const res = await fetch(`${API_BASE}/api/delivery-notes/driver/${driverName}`);
+       const res = await fetch(`${API_BASE}/api/deliveries/driver/${driverName}`);
 
         if (!res.ok) {
             throw new Error("Server returned " + res.status);
