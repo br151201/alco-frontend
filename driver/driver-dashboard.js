@@ -1,7 +1,7 @@
 const API_BASE = "https://alco-backend-yabe.onrender.com";
 
 // Get driver info from login
-const driverName = localStorage.getItem("driver_name"); // FIXED
+const driverName = localStorage.getItem("driver_name");
 
 // If driver is not logged in
 if (!driverName) {
@@ -9,14 +9,15 @@ if (!driverName) {
     window.location.href = "driver-login.html";
 }
 
-// Show driver name on dashboard
-document.getElementById("driverName").innerText = driverName;
+// ⭐ REMOVE THIS LINE (it breaks the page)
+// document.getElementById("driverName").innerText = driverName;
 
 async function loadDeliveries() {
     try {
         console.log("Fetching deliveries for:", driverName);
 
-       const res = await fetch(`${API_BASE}/api/deliveries/driver/${driverName}`);
+        // Correct backend route
+        const res = await fetch(`${API_BASE}/api/deliveries/driver/${driverName}`);
 
         if (!res.ok) {
             throw new Error("Server returned " + res.status);
@@ -52,10 +53,6 @@ async function loadDeliveries() {
         console.error("Error loading deliveries:", err);
         alert("Failed to load deliveries.");
     }
-}
-
-function openDelivery(orderId) {
-    window.location.href = `deliveryNotes.html?id=${orderId}`;
 }
 
 function openDelivery(orderId) {
