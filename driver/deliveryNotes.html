@@ -58,10 +58,53 @@
     <button class="btn btn-secondary mt-3" onclick="history.back()">Back</button>
 </div>
 
-<script src="drivers.js"></script>
 <script>
-loadDriverNote();
+async function loadDriverNote() {
+    const params = new URLSearchParams(window.location.search);
+    const noteId = params.get("id");
+
+    if (!noteId) {
+        document.getElementById("note_box").innerHTML =
+            `<div class="alert alert-danger">Invalid delivery note ID.</div>`;
+        return;
+    }
+
+    try {
+        const res = await fetch(`https://alco-backend-yabe.onrender.com/api/delivery-notes/by-order/${noteId}`);
+        const note = await res.json();
+
+        if (!note) {
+            document.getElementById("note_box").innerHTML =
+                `<div class="alert alert-warning">Delivery note not found.</div>`;
+            return;
+        }
+
+        document.getElementById("note_box").innerHTML = `
+            <h3 class="mb-3">Delivery Note</h3>
+            <div class="header-line"></div>
+
+            <p><strong>Order ID:</strong> ${note.order_id}</p>
+            <p><strong>Customer:</strong> ${note.customer_name}</p>
+            <p><strong>Address:</strong> ${note.address}</p>
+            <p><strong>Driver:</strong> ${note.driver_name}</p>
+            <p><strong>Status:</strong> ${note.delivery_status}</p>
+
+            <h5 class="mt-4">Items</h5>
+            <ul>
+                ${note.items.map(i => `<li>${i}</li>`).join("")}
+            </ul>
+
+            <h5 class="mt-4">Driver Note</h5>
+            <p>${note.note || "No note added"}</p>
+        `;
+    } catch (err) {
+        console.error("LOAD NOTE ERROR:", err);
+        document.getElementById("note_box").innerHTML =
+            `<div class="alert alert-danger">Failed to load delivery note.</div>`;
+    }
+}
 </script>
+
 
 </body>
 </html>
