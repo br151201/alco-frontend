@@ -1,27 +1,62 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Driver Dashboard - ALCo">
+
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: #f7f9fc;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .delivery-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+    </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-light bg-white shadow-sm px-3 py-2">
+    <span class="navbar-brand fw-bold text-primary">Driver Dashboard</span>
+</nav>
+
+<div class="container mt-3">
+    <h4 class="mb-3">Assigned Deliveries</h4>
+    <div id="delivery_list"></div>
+</div>
+    <script>
     const API_BASE = "https://alco-backend-yabe.onrender.com";
 
-    const driverId = localStorage.getItem("driver_id");
+   
     const driverName = localStorage.getItem("driver_name");
 
-    if (!driverId || !driverName) {
+        if (!driverName) {
         alert("Driver not logged in.");
         window.location.href = "driver-login.html";
     }
-
     async function loadDeliveries() {
         try {
             console.log("Fetching deliveries for driver:", driverName);
 
             // ⭐ Correct backend route
-            const res = await fetch(`${API_BASE}/api/delivery-notes/driver/name/${driverName}`);
+            const res = await fetch(`${API_BASE}/api/delivery-notes/driver/${driverName}`);
 
             const deliveries = await res.json();
+            console.log("Deliveries received:", deliveries);
 
             const list = document.getElementById("delivery_list");
             list.innerHTML = "";
 
-            if (!deliveries || deliveries.length === 0) {
+            iif (!Array.isArray(deliveries) || deliveries.length === 0) {
                 list.innerHTML = `<div class="alert alert-info">No deliveries assigned.</div>`;
                 return;
             }
@@ -34,7 +69,7 @@
                         <p><strong>Customer:</strong> ${d.customer_name}</p>
                         <p><strong>Address:</strong> ${d.address}</p>
 
-                        <button class="btn btn-primary mt-3" onclick="openDelivery(${d.delivery_note_id})">
+                        <button class="btn btn-primary mt-3" onclick="openDelivery(${d.order_id})">
                             View Delivery Note
                         </button>
                     </div>
@@ -46,10 +81,12 @@
             alert("Failed to load deliveries.");
         }
     }
-
-    function openDelivery(noteId) {
-        window.location.href = `deliveryNotes.html?id=${noteId}`;
+    function openDelivery(orderId) {
+        window.location.href = `deliveryNotes.html?id=${orderId}`;
     }
 
     document.addEventListener("DOMContentLoaded", loadDeliveries);
 </script>
+<script src="driver-dashboard.js"></script>
+</body>
+</html>
