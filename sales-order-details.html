@@ -155,26 +155,25 @@ async function loadOrder() {
         `;
     }
 
-// ⭐ NEW LOGIC — Delivered (FULL LOCK)
-if (order.status === "Delivered") {
+    // ⭐ NEW LOGIC — Delivered (FULL LOCK)
+    if (order.status === "Delivered") {
 
-    // Hide product checklist
-    document.getElementById("checklist_section").style.display = "none";
+        // Hide product checklist
+        document.getElementById("checklist_section").style.display = "none";
 
-    // Hide driver assignment
-    document.getElementById("driver_section").style.display = "none";
+        // Hide driver assignment
+        document.getElementById("driver_section").style.display = "none";
 
-    // Hide confirm button
-    document.getElementById("confirm_btn").style.display = "none";
+        // Hide confirm button
+        document.getElementById("confirm_btn").style.display = "none";
 
-    box.innerHTML += `
-        <div class="alert alert-success mt-3">
-            Delivery Completed — This order is fully locked.
-        </div>
-    `;
+        box.innerHTML += `
+            <div class="alert alert-success mt-3">
+                Delivery Completed — This order is fully locked.
+            </div>
+        `;
+    }
 }
-
-
 
 // ⭐ Unlock driver dropdown
 function unlockDriver() {
