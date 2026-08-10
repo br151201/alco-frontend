@@ -18,24 +18,9 @@
             box-shadow: 0 6px 18px rgba(0,0,0,0.08);
         }
 
-        canvas {
-            border: 2px solid #ccc;
-            border-radius: 8px;
-            background: white;
-        }
-
-        .table th {
-            background: #f1f1f1;
-        }
-
         .header-line {
             border-bottom: 3px solid #0d6efd;
             margin-bottom: 20px;
-        }
-
-        .check-col {
-            width: 40px;
-            text-align: center;
         }
     </style>
 </head>
@@ -79,6 +64,14 @@ async function loadDriverNote() {
             return;
         }
 
+        // ⭐ FIX: Parse items JSON
+        let items = [];
+        try {
+            items = JSON.parse(note.items);
+        } catch {
+            items = [];
+        }
+
         document.getElementById("note_box").innerHTML = `
             <h3 class="mb-3">Delivery Note</h3>
             <div class="header-line"></div>
@@ -91,7 +84,7 @@ async function loadDriverNote() {
 
             <h5 class="mt-4">Items</h5>
             <ul>
-                ${note.items.map(i => `<li>${i}</li>`).join("")}
+                ${items.map(i => `<li>${i.description} — Qty: ${i.quantity}</li>`).join("")}
             </ul>
 
             <h5 class="mt-4">Driver Note</h5>
@@ -105,6 +98,10 @@ async function loadDriverNote() {
 }
 </script>
 
+<!-- ⭐ FIX: Run the function -->
+<script>
+document.addEventListener("DOMContentLoaded", loadDriverNote);
+</script>
 
 </body>
 </html>
