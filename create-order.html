@@ -271,7 +271,7 @@ async function createOrder() {
     });
 
     const data = await res.json();
-if (data && data.order_id) {
+if (data && data.error === false && data.order_id) {
     alert("Order created successfully!");
     resetForm();
     generateOrderDetails();
@@ -279,6 +279,7 @@ if (data && data.order_id) {
     alert("Failed to create order.");
     console.log("ORDER ERROR:", data);
 }
+
 }  // ← THIS closes createOrder() properly
 
 
