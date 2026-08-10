@@ -271,6 +271,8 @@ async function createOrder() {
     });
 
     const data = await res.json();
+    console.log("BACKEND RESPONSE:", data);
+
 if (data && data.error === false && data.order_id) {
     alert("Order created successfully!");
     resetForm();
