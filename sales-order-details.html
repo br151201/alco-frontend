@@ -155,25 +155,28 @@ async function loadOrder() {
         `;
     }
 
-    // ⭐ NEW LOGIC — Delivered (FULL LOCK)
-    if (order.status === "Delivered") {
+  // ⭐ UPDATED LOGIC — Delivered (LOCK PRODUCTS BUT ALLOW DRIVER CHANGE)
+if (order.status === "Delivered") {
 
-        // Hide product checklist
-        document.getElementById("checklist_section").style.display = "none";
+    // Hide product checklist
+    document.getElementById("checklist_section").style.display = "none";
 
-        // Hide driver assignment
-        document.getElementById("driver_section").style.display = "none";
+    // Show driver section (allow reassignment)
+    document.getElementById("driver_section").style.display = "block";
 
-        // Hide confirm button
-        document.getElementById("confirm_btn").style.display = "none";
+    // Hide confirm button (no product confirmation)
+    document.getElementById("confirm_btn").style.display = "none";
 
-        box.innerHTML += `
-            <div class="alert alert-success mt-3">
-                Delivery Completed — This order is fully locked.
-            </div>
-        `;
-    }
+    // Ensure driver dropdown is enabled
+    document.getElementById("driver_select").disabled = false;
+
+    box.innerHTML += `
+        <div class="alert alert-success mt-3">
+            Delivery Completed — Products are locked, but driver can still be reassigned.
+        </div>
+    `;
 }
+
 
 // ⭐ Unlock driver dropdown
 function unlockDriver() {
