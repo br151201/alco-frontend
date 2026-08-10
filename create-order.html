@@ -271,17 +271,16 @@ async function createOrder() {
     });
 
     const data = await res.json();
-
-    // ⭐ FINAL FIX — Correct success check
-    if (data && data.order_id) {
-        alert("Order created successfully!");
-        resetForm();
-        generateOrderDetails();
-    } else {
-        alert("Failed to create order.");
-        console.log("ORDER ERROR:", data);
-    }
+if (data && data.order_id) {
+    alert("Order created successfully!");
+    resetForm();
+    generateOrderDetails();
+} else {
+    alert("Failed to create order.");
+    console.log("ORDER ERROR:", data);
 }
+}  // ← THIS closes createOrder() properly
+
 
 // ⭐ Reset form
 function resetForm() {
