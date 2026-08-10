@@ -18,9 +18,24 @@
             box-shadow: 0 6px 18px rgba(0,0,0,0.08);
         }
 
+        canvas {
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .table th {
+            background: #f1f1f1;
+        }
+
         .header-line {
             border-bottom: 3px solid #0d6efd;
             margin-bottom: 20px;
+        }
+
+        .check-col {
+            width: 40px;
+            text-align: center;
         }
     </style>
 </head>
@@ -30,7 +45,7 @@
 <nav class="navbar navbar-light bg-white shadow-sm px-3 py-2">
     <a class="navbar-brand d-flex align-items-center" href="dashboard.html">
         <img src="../alco-logo.png" height="40" class="me-2">
-        <span class="fw-bold text-primary">Driver Delivery Note</span>
+        <span class="fw-bold text-primary">ALCo Delivery Note</span>
     </a>
 </nav>
 
@@ -44,63 +59,198 @@
 </div>
 
 <script>
-async function loadDriverNote() {
-    const params = new URLSearchParams(window.location.search);
-    const noteId = params.get("id");
+const urlParams = new URLSearchParams(window.location.search);
+const orderId = urlParams.get("id");
 
-    if (!noteId) {
-        document.getElementById("note_box").innerHTML =
-            `<div class="alert alert-danger">Invalid delivery note ID.</div>`;
+// ⭐ PRODUCTION API BASE (Render)
+let apiBase = "https://alco-backend-yabe.onrender.com";
+
+if (!orderId || orderId === "null") {
+    alert("Error: No order ID provided.");
+    throw new Error("Missing order ID");
+}
+
+async function loadDeliveryNote() {
+    const res = await fetch(`${apiBase}/api/delivery-notes/by-order/${orderId}`);
+    const note = await res.json();
+    const box = document.getElementById("note_box");
+
+    if (!note || note.error) {
+        box.innerHTML = `<div class="alert alert-danger">Delivery note not found.</div>`;
         return;
     }
 
+    // ⭐ FIX: Parse items JSON
+    let itemsArray = [];
     try {
-        const res = await fetch(`https://alco-backend-yabe.onrender.com/api/delivery-notes/by-order/${noteId}`);
-        const note = await res.json();
+        itemsArray = JSON.parse(note.items);
+    } catch {
+        itemsArray = [];
+    }
 
-        if (!note) {
-            document.getElementById("note_box").innerHTML =
-                `<div class="alert alert-warning">Delivery note not found.</div>`;
-            return;
-        }
+    itemsArray = itemsArray.map(item => ({
+        description: item.description || "",
+        quantity: Number(item.quantity) || 0
+    }));
 
-        // ⭐ FIX: Parse items JSON
-        let items = [];
-        try {
-            items = JSON.parse(note.items);
-        } catch {
-            items = [];
-        }
+    let productRows = itemsArray.map(item => `
+        <tr>
+            <td class="check-col"><input type="checkbox"></td>
+            <td>${item.description}</td>
+            <td>${item.quantity}</td>
+        </tr>
+    `).join("");
 
-        document.getElementById("note_box").innerHTML = `
-            <h3 class="mb-3">Delivery Note</h3>
-            <div class="header-line"></div>
+    let signatureSection = "";
 
-            <p><strong>Order ID:</strong> ${note.order_id}</p>
-            <p><strong>Customer:</strong> ${note.customer_name}</p>
-            <p><strong>Address:</strong> ${note.address}</p>
-            <p><strong>Driver:</strong> ${note.driver_name}</p>
-            <p><strong>Status:</strong> ${note.delivery_status}</p>
+    if (note.delivery_status === "Delivered") {
+        signatureSection = `
+            <h5 class="fw-bold">Customer Signature</h5>
+            <img src="${note.customer_signature}" width="300" class="border rounded mb-3">
 
-            <h5 class="mt-4">Items</h5>
-            <ul>
-                ${items.map(i => `<li>${i.description} — Qty: ${i.quantity}</li>`).join("")}
-            </ul>
-
-            <h5 class="mt-4">Driver Note</h5>
-            <p>${note.note || "No note added"}</p>
+            <div class="alert alert-success mt-3">
+                Delivery Completed — Signature Locked
+            </div>
         `;
-    } catch (err) {
-        console.error("LOAD NOTE ERROR:", err);
-        document.getElementById("note_box").innerHTML =
-            `<div class="alert alert-danger">Failed to load delivery note.</div>`;
+    } else {
+        signatureSection = `
+            <h5 class="fw-bold">Customer Signature</h5>
+            <canvas id="customerPad" width="300" height="120"></canvas>
+            <button class="btn btn-sm btn-outline-danger mt-2" onclick="clearCustomerPad()">Clear</button>
+
+            <hr>
+
+            <button class="btn btn-success mt-3" onclick="markDelivered()">
+                Mark as Delivered
+            </button>                                   
+        `;
+    }
+
+    box.innerHTML = `
+        <div class="text-center mb-4">
+            <img src="../alco-logo.png" height="70" class="mb-2">
+            <h2 class="fw-bold">ALCo Components Ltd</h2>
+            <p class="text-muted">Suite 1 Majestic Building, Dewsbury, WF13 2BE</p>
+            <div class="header-line"></div>
+        </div>
+
+        <h3 class="fw-bold mb-3 text-primary">Delivery Note</h3>
+
+        <div class="row mb-4">
+            <div class="col-6">
+                <h5 class="fw-bold">Delivered To</h5>
+                <p>
+                    ${note.customer_name}<br>
+                    ${note.address}<br>
+                    ${note.customer_email || ""}
+                </p>
+            </div>
+
+            <div class="col-6 text-end">
+                <h5 class="fw-bold">Delivery Note No.</h5>
+                <p>${note.delivery_note_id || note.id}</p>
+
+                <h5 class="fw-bold">Order ID</h5>
+                <p>${note.order_id}</p>
+
+                <h5 class="fw-bold">Date</h5>
+                <p>${new Date(note.created_at).toLocaleDateString()}</p>
+
+                <h5 class="fw-bold">Driver</h5>
+                <p>${note.driver_name || "Not Assigned"}</p>
+            </div>
+        </div>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th class="check-col">✔</th>
+                    <th>Description</th>
+                    <th>Qty</th>
+                </tr>
+            </thead>
+            <tbody>${productRows}</tbody>
+        </table>
+
+        <hr>
+
+        <h5 class="fw-bold">Special Notes</h5>
+        <p>${note.note || "None"}</p>
+
+        <hr>
+
+        ${signatureSection}
+
+        <hr class="mt-4">
+
+        <div class="text-center text-muted small">
+            <p>By signing, you confirm that goods are received in the stated quantity and condition.</p>
+        </div>
+    `;
+
+    if (note.delivery_status !== "Delivered") setupPads();
+}
+
+// ⭐ SIGNATURE PAD
+let customerPad, customerCtx, drawingCustomer = false;
+
+function setupPads() {
+    customerPad = document.getElementById("customerPad");
+    customerCtx = customerPad.getContext("2d");
+
+    customerPad.addEventListener("mousedown", () => drawingCustomer = true);
+    customerPad.addEventListener("mouseup", () => { drawingCustomer = false; customerCtx.beginPath(); });
+    customerPad.addEventListener("mousemove", drawCustomer);
+
+    customerPad.addEventListener("touchstart", (e) => { drawingCustomer = true; e.preventDefault(); });
+    customerPad.addEventListener("touchend", (e) => { drawingCustomer = false; customerCtx.beginPath(); e.preventDefault(); });
+    customerPad.addEventListener("touchmove", (e) => {
+        const rect = customerPad.getBoundingClientRect();
+        const touch = e.touches[0];
+        drawCustomer({ clientX: touch.clientX, clientY: touch.clientY, rect });
+        e.preventDefault();
+    });
+}
+
+function drawCustomer(e) {
+    if (!drawingCustomer) return;
+    const rect = e.rect || customerPad.getBoundingClientRect();
+    customerCtx.lineWidth = 3;
+    customerCtx.lineCap = "round";
+    customerCtx.strokeStyle = "#000";
+    customerCtx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+    customerCtx.stroke();
+    customerCtx.beginPath();
+    customerCtx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+}
+
+function clearCustomerPad() {
+    customerCtx.clearRect(0, 0, customerPad.width, customerPad.height);
+}
+
+// ⭐ MARK DELIVERY COMPLETE
+async function markDelivered() {
+    const customerSignature = customerPad.toDataURL("image/png");
+
+    const res = await fetch(`${apiBase}/api/delivery-notes/delivered/${orderId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            customer_signature: customerSignature
+        })
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+        alert("Delivery Completed!");
+        loadDeliveryNote();
+    } else {
+        alert("Failed to update delivery.");
     }
 }
-</script>
 
-<!-- ⭐ FIX: Run the function -->
-<script>
-document.addEventListener("DOMContentLoaded", loadDriverNote);
+loadDeliveryNote();
 </script>
 
 </body>
