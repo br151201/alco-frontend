@@ -80,12 +80,21 @@ async function loadDeliveryNote() {
     }
 
     // ⭐ FIX: Parse items JSON string properly
-    let itemsArray = [];
-    try {
+   // ⭐ FIX: Handle all item formats safely
+let itemsArray = [];
+
+try {
+    if (typeof note.items === "string") {
         itemsArray = JSON.parse(note.items);
-    } catch {
-        itemsArray = [];
+    } else if (Array.isArray(note.items)) {
+        itemsArray = note.items;
+    } else if (note.items && typeof note.items === "object") {
+        itemsArray = [note.items];
     }
+} catch {
+    itemsArray = [];
+}
+
 
     itemsArray = itemsArray.map(item => ({
         description: item.description || "",
