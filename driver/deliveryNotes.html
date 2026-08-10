@@ -62,7 +62,6 @@
 const urlParams = new URLSearchParams(window.location.search);
 const orderId = urlParams.get("id");
 
-// ⭐ PRODUCTION API BASE (Render)
 let apiBase = "https://alco-backend-yabe.onrender.com";
 
 if (!orderId || orderId === "null") {
@@ -80,7 +79,7 @@ async function loadDeliveryNote() {
         return;
     }
 
-    // ⭐ FIX: Parse items JSON
+    // ⭐ FIX: Parse items JSON string properly
     let itemsArray = [];
     try {
         itemsArray = JSON.parse(note.items);
