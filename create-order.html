@@ -275,7 +275,7 @@ async function createOrder() {
 
     const data = await res.json();
 
-   if (data.order_id || data.success) {
+   if (data.order_id ) {
     alert("Order created successfully!");
     resetForm();
     generateOrderDetails();
