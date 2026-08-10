@@ -157,7 +157,7 @@ async function checkCustomerByName(name) {
     }
 }
 
-// ⭐ Load customers (remove duplicates)
+// ⭐ Load customers
 async function loadCustomers() {
     const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/customers");
     const customers = await res.json();
@@ -180,7 +180,7 @@ async function loadCustomers() {
 
 loadCustomers();
 
-// ⭐ Load products for searchable typing
+// ⭐ Load products
 async function loadProducts() {
     try {
         const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/products");
@@ -216,7 +216,7 @@ document.getElementById("product_search").addEventListener("input", function () 
     });
 });
 
-// ⭐ Add product to list
+// ⭐ Add product
 function addProduct() {
     const description = document.getElementById("product_search").value;
     const quantity = Number(document.getElementById("quantity").value);
@@ -226,15 +226,11 @@ function addProduct() {
         return;
     }
 
-    items.push({
-        description,
-        quantity
-    });
-
+    items.push({ description, quantity });
     displayItems();
 }
 
-// ⭐ Display items correctly
+// ⭐ Display items
 function displayItems() {
     const list = document.getElementById("items_list");
     list.innerHTML = "";
@@ -244,6 +240,7 @@ function displayItems() {
     });
 }
 
+// ⭐ Create order
 async function createOrder() {
     const order_id = Number(document.getElementById("order_id").value);
     const order_date = document.getElementById("order_date").value;
@@ -268,21 +265,22 @@ async function createOrder() {
             customer_name,
             address,
             email,
-            items,        // backend will JSON.stringify this
+            items,
             comments
         })
     });
 
     const data = await res.json();
 
-   if (data.order_id ) {
-    alert("Order created successfully!");
-    resetForm();
-    generateOrderDetails();
-} else {
-    alert("Failed to create order.");
-    console.log("ORDER ERROR:", data);
-}
+    // ⭐ FINAL FIX — Correct success check
+    if (data && data.order_id) {
+        alert("Order created successfully!");
+        resetForm();
+        generateOrderDetails();
+    } else {
+        alert("Failed to create order.");
+        console.log("ORDER ERROR:", data);
+    }
 }
 
 // ⭐ Reset form
@@ -300,4 +298,4 @@ function resetForm() {
 </script>
 
 </body>
-</html> 
+</html>
