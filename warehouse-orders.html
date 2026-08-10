@@ -54,9 +54,9 @@ async function loadOrders() {
     <td>${order.order_date}</td>
     <td>${order.status || "Order Created"}</td>
     <td>
-    <button class="btn btn-primary btn-lg w-30"
-        onclick="window.location.href = 'sales-order-details.html?id=${order.order_id}'">
-        View
+    <button class="btn btn-primary view-btn"
+     onclick="window.location.href = 'sales-order-details.html?id=${order.order_id}'">
+         View
     </button>
  </td>
 `;
