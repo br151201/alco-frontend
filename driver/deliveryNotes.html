@@ -169,16 +169,25 @@ try {
             </div>
         </div>
 
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th class="check-col">✔</th>
-                    <th>Description</th>
-                    <th>Qty</th>
-                </tr>
-            </thead>
-            <tbody>${productRows}</tbody>
-        </table>
+     <table class="table table-bordered">
+    <thead>
+        <tr>
+            ${note.delivery_status === "Delivered" ? "" : `<th class="check-col">✔</th>`}
+            <th>Description</th>
+            <th>Qty</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${itemsArray.map(item => `
+            <tr>
+                ${note.delivery_status === "Delivered" ? "" : `<td class="check-col"><input type="checkbox"></td>`}
+                <td>${item.description}</td>
+                <td>${item.quantity}</td>
+            </tr>
+        `).join("")}
+    </tbody>
+</table>
+
 
         <hr>
 
