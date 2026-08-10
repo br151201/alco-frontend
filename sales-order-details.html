@@ -39,6 +39,9 @@
     <!-- ⭐ CONFIRM BUTTON -->
     <button id="confirm_btn" type="button" class="btn btn-success" onclick="confirmOrder()">Confirm & Send to Delivery</button>
 
+    <!-- ⭐ PRINT BUTTON -->
+    <button id="print_btn" class="btn btn-info mt-3" onclick="window.print()">Print / Save as PDF</button>
+
     <button class="btn btn-secondary mt-3" onclick="history.back()">Back</button>
 </div>
 
@@ -137,21 +140,36 @@ async function loadOrder() {
         checklist.appendChild(div);
     });
 
-    // ⭐ UPDATED LOGIC — Allow driver reassignment ANYTIME
+    // ⭐ LOGIC — Out for Delivery
     if (order.status === "Out for Delivery") {
-        // Lock product checklist
         document.getElementById("product_list").style.display = "none";
         document.getElementById("checklist_section").style.display = "none";
 
-        // Keep driver section visible
         document.getElementById("driver_section").style.display = "block";
-
-        // Change button text
         document.getElementById("confirm_btn").textContent = "Update Driver";
 
         box.innerHTML += `
             <div class="alert alert-info mt-3">
                 This order is Out for Delivery. Product changes are locked, but driver can be reassigned.
+            </div>
+        `;
+    }
+
+    // ⭐ NEW LOGIC — Delivered (FULL LOCK)
+    if (order.status === "Delivered") {
+
+        // Hide product checklist
+        document.getElementById("checklist_section").style.display = "none";
+
+        // Hide driver assignment
+        document.getElementById("driver_section").style.display = "none";
+
+        // Hide confirm button
+        document.getElementById("confirm_btn").style.display = "none";
+
+        box.innerHTML += `
+            <div class="alert alert-success mt-3">
+                Delivery Completed — This order is fully locked.
             </div>
         `;
     }
@@ -178,7 +196,6 @@ async function confirmOrder() {
 
     let finalItems = [];
 
-    // Only use checklist if order is NOT Out for Delivery
     if (currentOrder.status !== "Out for Delivery") {
         currentOrder.items.forEach((item, index) => {
             const checked = document.getElementById(`item_${index}`).checked;
