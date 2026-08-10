@@ -87,7 +87,7 @@
         <input type="date" id="order_date">
 
         <label>Order Time</label>
-        <input type="time" id="order_time">
+        <input type="time" id="order_time" step="1">
 
         <label>Customer Name</label>
         <input list="customer_list" id="customer_name" placeholder="Start typing...">
@@ -141,7 +141,10 @@ async function generateOrderDetails() {
     }
 
     document.getElementById("order_date").value = now.toISOString().split("T")[0];
-    document.getElementById("order_time").value = now.toTimeString().split(" ")[0];
+
+    // ⭐ FIX: Force 24-hour time (PostgreSQL-safe)
+    const time24 = now.toTimeString().split(" ")[0].substring(0, 8);
+    document.getElementById("order_time").value = time24;
 }
 
 generateOrderDetails();
@@ -273,17 +276,15 @@ async function createOrder() {
     const data = await res.json();
     console.log("BACKEND RESPONSE:", data);
 
-if (data && data.error === false && data.order_id) {
-    alert("Order created successfully!");
-    resetForm();
-    generateOrderDetails();
-} else {
-    alert("Failed to create order.");
-    console.log("ORDER ERROR:", data);
+    if (data.success === true && data.order_id) {
+        alert("Order created successfully!");
+        resetForm();
+        generateOrderDetails();
+    } else {
+        alert("Failed to create order.");
+        console.log("ORDER ERROR:", data);
+    }
 }
-
-}  // ← THIS closes createOrder() properly
-
 
 // ⭐ Reset form
 function resetForm() {
