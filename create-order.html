@@ -274,16 +274,16 @@ async function createOrder() {
     });
 
     const data = await res.json();
-if (data && !data.error) {
-    alert("Order created successfully!");
-    resetForm();
-    generateOrderDetails();
-} else {
-    alert("Failed to create order.");
-    console.log("ORDER ERROR:", data);
+
+    if (data.success) {
+        alert("Order created successfully!");
+        resetForm();
+        generateOrderDetails();
+    } else {
+        alert("Failed to create order.");
+        console.log("ORDER ERROR:", data);
+    }
 }
-
-
 // ⭐ Reset form
 function resetForm() {
     document.getElementById("customer_name").value = "";
@@ -299,4 +299,4 @@ function resetForm() {
 </script>
 
 </body>
-</html>
+</html> 
