@@ -135,15 +135,24 @@ async function generateOrderDetails() {
     try {
         const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/next-id");
         const data = await res.json();
-        document.getElementById("order_id").value = data.order_id;
+
+        if (!data.order_id) {
+            alert("Order ID failed to load. Refresh the page.");
+            return;
+        }
+
+        document.getElementById("order_id").value = Number(data.order_id);
+
     } catch (err) {
-        document.getElementById("order_id").value = "ERROR";
+        alert("Could not load order ID. Please refresh.");
+        return;
     }
 
+    // ⭐ DATE column expects YYYY-MM-DD
     document.getElementById("order_date").value = now.toISOString().split("T")[0];
 
-    // ⭐ FIX: Force 24-hour time (PostgreSQL-safe)
-    const time24 = now.toTimeString().split(" ")[0].substring(0, 8);
+    // ⭐ TIME column expects HH:MM:SS
+    const time24 = now.toTimeString().split(" ")[0];
     document.getElementById("order_time").value = time24;
 }
 
@@ -246,6 +255,12 @@ function displayItems() {
 // ⭐ Create order
 async function createOrder() {
     const order_id = Number(document.getElementById("order_id").value);
+
+    if (!order_id) {
+        alert("Order ID not ready. Please wait 1 second and try again.");
+        return;
+    }
+
     const order_date = document.getElementById("order_date").value;
     const order_time = document.getElementById("order_time").value;
     const customer_name = document.getElementById("customer_name").value;
