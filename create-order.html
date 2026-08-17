@@ -136,11 +136,6 @@ async function generateOrderDetails() {
         const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/next-id");
         const data = await res.json();
 
-        if (!data.order_id) {
-            alert("Order ID failed to load. Refresh the page.");
-            return;
-        }
-
         document.getElementById("order_id").value = Number(data.order_id);
 
     } catch (err) {
@@ -148,12 +143,8 @@ async function generateOrderDetails() {
         return;
     }
 
-    // ⭐ DATE column expects YYYY-MM-DD
     document.getElementById("order_date").value = now.toISOString().split("T")[0];
-
-    // ⭐ TIME column expects HH:MM:SS
-    const time24 = now.toTimeString().split(" ")[0];
-    document.getElementById("order_time").value = time24;
+    document.getElementById("order_time").value = now.toTimeString().split(" ")[0];
 }
 
 generateOrderDetails();
@@ -252,14 +243,8 @@ function displayItems() {
     });
 }
 
-// ⭐ Create order
+// ⭐ Create order (Option A — NO order_id sent)
 async function createOrder() {
-    const order_id = parseInt(document.getElementById("order_id").value);
-
-    if (!order_id) {
-        alert("Order ID not ready. Please wait 1 second and try again.");
-        return;
-    }
 
     const order_date = document.getElementById("order_date").value;
     const order_time = document.getElementById("order_time").value;
@@ -277,7 +262,6 @@ async function createOrder() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-            order_id,          // ⭐ FIXED — now sending order_id
             order_date,
             order_time,
             customer_name,
@@ -300,7 +284,6 @@ async function createOrder() {
         console.log("ORDER ERROR:", data);
     }
 }
-
 
 // ⭐ Reset form
 function resetForm() {
