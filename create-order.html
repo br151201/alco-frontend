@@ -254,7 +254,7 @@ function displayItems() {
 
 // ⭐ Create order
 async function createOrder() {
-    const order_id = Number(document.getElementById("order_id").value);
+    const order_id = parseInt(document.getElementById("order_id").value);
 
     if (!order_id) {
         alert("Order ID not ready. Please wait 1 second and try again.");
@@ -277,6 +277,7 @@ async function createOrder() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+            order_id,          // ⭐ FIXED — now sending order_id
             order_date,
             order_time,
             customer_name,
@@ -299,6 +300,7 @@ async function createOrder() {
         console.log("ORDER ERROR:", data);
     }
 }
+
 
 // ⭐ Reset form
 function resetForm() {
