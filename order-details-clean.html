@@ -96,7 +96,7 @@ async function loadOrderDetails() {
 
             <div class="col-6 text-end">
                 <p><span class="label">Order Date:</span> <span class="value">${order.order_date}</span></p>
-                <p><span class="label">Order Time:</span> <span class="value">${order.order_time}</span></p>
+                <p><span class="label">Order Time:</span> <span class="value">${new Date(order.order_date).toLocaleDateString("en-GB")}</span></p>
                 <p><span class="label">Status:</span> <span class="value">${order.status}</span></p>
                 <p><span class="label">Driver Assigned:</span> <span class="value">${order.driver_name || "Not Assigned"}</span></p>
             </div>
