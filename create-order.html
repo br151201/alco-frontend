@@ -132,13 +132,19 @@ let allProducts = [];
 async function generateOrderDetails() {
     const now = new Date();
 
-    // DO NOT load order_id here
-    // Backend will generate the REAL order_id
+    try {
+        const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/next-id");
+        const data = await res.json();
+
+        document.getElementById("order_id").value = Number(data.order_id);
+
+    } catch (err) {
+        alert("Could not load order ID. Please refresh.");
+        return;
+    }
 
     document.getElementById("order_date").value = now.toISOString().split("T")[0];
-
-    document.getElementById("order_time").value =
-        now.toLocaleTimeString("en-GB", { hour12: false });
+    document.getElementById("order_time").value = now.toTimeString().split(" ")[0];
 }
 
 generateOrderDetails();
@@ -258,8 +264,8 @@ async function createOrder() {
             order_date,
             order_time,
             customer_name,
-            address,
             email,
+            address,
             items,
             comments
         })
