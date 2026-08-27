@@ -123,6 +123,11 @@
         <button type="button" onclick="createOrder()">Create Order</button>
         <button type="button" onclick="history.back()">Back</button>
     </div>
+<script>
+if (localStorage.getItem("role") !== "office") {
+    window.location.href = "office-login.html";
+}
+</script>
 
 <script>
 let items = [];
