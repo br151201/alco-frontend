@@ -128,13 +128,23 @@
 let items = [];
 let allProducts = [];
 
-// ⭐ Generate date + time only (order_id comes from backend)
-function generateOrderDetails() {
+// ⭐ Load next order ID + date/time
+async function generateOrderDetails() {
     const now = new Date();
 
+    try {
+        const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/next-id");
+        const data = await res.json();
+
+        document.getElementById("order_id").value = Number(data.order_id);
+
+    } catch (err) {
+        alert("Could not load order ID. Please refresh.");
+        return;
+    }
+
     document.getElementById("order_date").value = now.toISOString().split("T")[0];
-    document.getElementById("order_time").value =
-        now.toLocaleTimeString("en-GB", { hour12: false });
+    document.getElementById("order_time").value = now.toTimeString().split(" ")[0];
 }
 
 generateOrderDetails();
@@ -209,7 +219,7 @@ document.getElementById("product_search").addEventListener("input", function () 
     });
 });
 
-// ⭐ Add product (FULLY FIXED)
+// ⭐ Add product
 function addProduct() {
     const description = document.getElementById("product_search").value;
     const quantity = Number(document.getElementById("quantity").value);
@@ -219,12 +229,7 @@ function addProduct() {
         return;
     }
 
-    items.push({
-        product: description,
-        description: description,
-        quantity: quantity
-    });
-
+    items.push({ description, quantity });
     displayItems();
 }
 
@@ -238,7 +243,6 @@ function displayItems() {
     });
 }
 
-// ⭐ Create order (FULLY FIXED)
 async function createOrder() {
 
     const order_date = document.getElementById("order_date").value;
@@ -270,14 +274,15 @@ async function createOrder() {
     const data = await res.json();
     console.log("BACKEND RESPONSE:", data);
 
-    if (data.success) {
-        document.getElementById("order_id").value = data.order_id;
-        alert("Order created successfully! Order ID: " + data.order_id);
+   if (data.success) {
+    document.getElementById("order_id").value = data.order_id;
+    alert("Order created successfully! Order ID: " + data.order_id);
     } else {
         alert("Failed to create order.");
         console.log("ORDER ERROR:", data);
     }
 }
+
 
 // ⭐ Reset form
 function resetForm() {
@@ -292,6 +297,9 @@ function resetForm() {
     generateOrderDetails();
 }
 </script>
+
+
+
 
 </body>
 </html>
