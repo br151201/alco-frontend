@@ -30,14 +30,13 @@
         <tbody id="ordersTable"></tbody>
     </table>
 </div>
+
 <script>
 if (localStorage.getItem("role") !== "office") {
     localStorage.setItem("redirect_to", "order-list.html");
     window.location.href = "office-login.html";
 }
 </script>
-
-
 
 <script>
 // Load all orders

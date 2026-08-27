@@ -34,10 +34,13 @@ function login() {
     const p = document.getElementById("password").value;
 
     if (u === "office" && p === "office123") {
+
+        // Save login
         localStorage.setItem("role", "office");
 
         // Redirect back to the page the user wanted
         const redirectPage = localStorage.getItem("redirect_to");
+
         if (redirectPage) {
             window.location.href = redirectPage;
         } else {
