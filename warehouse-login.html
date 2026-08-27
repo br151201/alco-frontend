@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Warehouse Login - ALCo</title>
+    <style>
+        body { font-family: Arial; background: #eef2f7; }
+        .box {
+            width: 350px; margin: 80px auto; background: white;
+            padding: 25px; border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        input { width: 100%; padding: 10px; margin-top: 10px; }
+        button {
+            width: 100%; padding: 10px; margin-top: 15px;
+            background: #444; color: white; border: none;
+            border-radius: 5px; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="box">
+    <h2>Warehouse Login</h2>
+
+    <input id="username" placeholder="Username">
+    <input id="password" type="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+</div>
+
+<script>
+function login() {
+    const u = document.getElementById("username").value;
+    const p = document.getElementById("password").value;
+
+    if (u === "warehouse" && p === "warehouse123") {
+        localStorage.setItem("role", "warehouse");
+        window.location.href = "warehouse-orders.html";
+    } else {
+        alert("Invalid warehouse login");
+    }
+}
+</script>
+
+</body>
+</html>
