@@ -132,19 +132,13 @@ let allProducts = [];
 async function generateOrderDetails() {
     const now = new Date();
 
-    try {
-        const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/next-id");
-        const data = await res.json();
-
-        document.getElementById("order_id").value = Number(data.order_id);
-
-    } catch (err) {
-        alert("Could not load order ID. Please refresh.");
-        return;
-    }
+    // DO NOT load order_id here
+    // Backend will generate the REAL order_id
 
     document.getElementById("order_date").value = now.toISOString().split("T")[0];
-    document.getElementById("order_time").value = now.toTimeString().split(" ")[0];
+
+    document.getElementById("order_time").value =
+        now.toLocaleTimeString("en-GB", { hour12: false });
 }
 
 generateOrderDetails();
@@ -274,10 +268,9 @@ async function createOrder() {
     const data = await res.json();
     console.log("BACKEND RESPONSE:", data);
 
-    if (data.success) {
-        alert("Order created successfully!");
-        resetForm();
-        generateOrderDetails();
+   if (data.success) {
+    document.getElementById("order_id").value = data.order_id;
+    alert("Order created successfully! Order ID: " + data.order_id);
     } else {
         alert("Failed to create order.");
         console.log("ORDER ERROR:", data);
