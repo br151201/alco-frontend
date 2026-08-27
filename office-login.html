@@ -28,33 +28,19 @@
     <button onclick="login()">Login</button>
 </div>
 
-
-
 <script>
 function login() {
     const u = document.getElementById("username").value;
     const p = document.getElementById("password").value;
 
     if (u === "office" && p === "office123") {
-
-        // Save login
         localStorage.setItem("role", "office");
-
-        // Redirect back to the page the user wanted
-        const redirectPage = localStorage.getItem("redirect_to");
-
-        if (redirectPage) {
-            window.location.href = redirectPage;
-        } else {
-            window.location.href = "create-order.html"; // default
-        }
-
+        window.location.href = "create-order.html";
     } else {
         alert("Invalid office login");
     }
 }
 </script>
-
 
 </body>
 </html>
