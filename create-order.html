@@ -80,7 +80,8 @@
     <div class="container">
         <h2>Create New Order</h2>
 
-        <!-- ⭐ REMOVED FAKE ORDER ID FIELD -->
+        <label>Sales Order ID</label>
+        <input type="number" id="order_id" readonly>
 
         <label>Order Date</label>
         <input type="date" id="order_date">
@@ -127,9 +128,21 @@
 let items = [];
 let allProducts = [];
 
-// ⭐ FIXED — REMOVED next-id API (not needed)
-function generateOrderDetails() {
+// ⭐ Load next order ID + date/time
+async function generateOrderDetails() {
     const now = new Date();
+
+    try {
+        const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/next-id");
+        const data = await res.json();
+
+        document.getElementById("order_id").value = Number(data.order_id);
+
+    } catch (err) {
+        alert("Could not load order ID. Please refresh.");
+        return;
+    }
+
     document.getElementById("order_date").value = now.toISOString().split("T")[0];
     document.getElementById("order_time").value = now.toTimeString().split(" ")[0];
 }
@@ -285,6 +298,9 @@ function resetForm() {
     generateOrderDetails();
 }
 </script>
+
+
+
 
 </body>
 </html>
