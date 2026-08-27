@@ -30,6 +30,12 @@
         <tbody id="orders_table"></tbody>
     </table>
 </div>
+<script>
+if (localStorage.getItem("role") !== "warehouse") {
+    window.location.href = "warehouse-login.html";
+}
+</script>
+
 
 <script>
 async function loadOrders() {
