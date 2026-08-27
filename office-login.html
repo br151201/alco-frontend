@@ -35,12 +35,21 @@ function login() {
 
     if (u === "office" && p === "office123") {
         localStorage.setItem("role", "office");
-        window.location.href = "create-order.html";
+
+        // Redirect back to the page the user wanted
+        const redirectPage = localStorage.getItem("redirect_to");
+        if (redirectPage) {
+            window.location.href = redirectPage;
+        } else {
+            window.location.href = "create-order.html"; // default
+        }
+
     } else {
         alert("Invalid office login");
     }
 }
 </script>
+
 
 </body>
 </html>
