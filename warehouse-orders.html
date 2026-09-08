@@ -42,8 +42,8 @@ async function loadOrders() {
     const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders");
     const orders = await res.json();
     orders.sort((a, b) => {
-    const dateA = new Date(`${a.order_date} ${a.order_time}`);
-    const dateB = new Date(`${b.order_date} ${b.order_time}`);
+    const dateA = new Date(`${a.order_date}`);
+    const dateB = new Date(`${b.order_date}`);
     return dateB - dateA; // newest first
 });
 
