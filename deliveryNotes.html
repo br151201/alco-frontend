@@ -231,7 +231,7 @@ function drawCustomer(e) {
 function clearCustomerPad() {
     customerCtx.clearRect(0, 0, customerPad.width, customerPad.height);
 }
-
+   <button id="print_btn" class="btn btn-info mt-3" onclick="window.print()">Print / Save as PDF</button>
 // ⭐ MARK DELIVERY COMPLETE
 async function markDelivered() {
     const customerSignature = customerPad.toDataURL("image/png");
