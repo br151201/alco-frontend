@@ -140,7 +140,7 @@ async function generateOrderDetails() {
     const now = new Date();
 
     try {
-        const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/next-id");
+        const res = await fetch("https://alco-app.onrender.com/api/orders/next-id");
         const data = await res.json();
 
         document.getElementById("order_id").value = Number(data.order_id);
@@ -154,7 +154,6 @@ async function generateOrderDetails() {
     document.getElementById("order_time").value = now.toTimeString().split(" ")[0];
 }
 
-generateOrderDetails();
 
 // ⭐ Auto-fill customer details
 async function checkCustomerByName(name) {
