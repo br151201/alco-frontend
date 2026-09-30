@@ -123,13 +123,12 @@
         <button type="button" onclick="createOrder()">Create Order</button>
         <button type="button" onclick="history.back()">Back</button>
     </div>
+
 <script>
 if (localStorage.getItem("role") !== "office") {
     window.location.href = "office-login.html";
 }
 </script>
-
-
 
 <script>
 let items = [];
@@ -154,10 +153,11 @@ async function generateOrderDetails() {
     document.getElementById("order_time").value = now.toTimeString().split(" ")[0];
 }
 
+generateOrderDetails();
 
 // ⭐ Auto-fill customer details
 async function checkCustomerByName(name) {
-    const res = await fetch(`https://alco-backend-yabe.onrender.com/api/orders/find?name=${name}`);
+    const res = await fetch(`https://alco-app.onrender.com/api/orders/find?name=${name}`);
     const data = await res.json();
 
     if (data) {
@@ -168,7 +168,7 @@ async function checkCustomerByName(name) {
 
 // ⭐ Load customers
 async function loadCustomers() {
-    const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/customers");
+    const res = await fetch("https://alco-app.onrender.com/api/orders/customers");
     const customers = await res.json();
 
     const uniqueNames = [...new Set(customers.map(c => c.name))];
@@ -192,7 +192,7 @@ loadCustomers();
 // ⭐ Load products
 async function loadProducts() {
     try {
-        const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/products");
+        const res = await fetch("https://alco-app.onrender.com/api/orders/products");
         allProducts = await res.json();
     } catch (err) {
         console.error("PRODUCT LOAD ERROR:", err);
@@ -263,7 +263,7 @@ async function createOrder() {
         return;
     }
 
-    const res = await fetch("https://alco-backend-yabe.onrender.com/api/orders/create", {
+    const res = await fetch("https://alco-app.onrender.com/api/orders/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -289,23 +289,7 @@ async function createOrder() {
     }
 }
 
-
-// ⭐ Reset form
-function resetForm() {
-    document.getElementById("customer_name").value = "";
-    document.getElementById("address").value = "";
-    document.getElementById("email").value = "";
-    document.getElementById("product_search").value = "";
-    document.getElementById("quantity").value = "";
-    document.getElementById("items_list").innerHTML = "";
-    document.getElementById("comments").value = "";
-    items = [];
-    generateOrderDetails();
-}
 </script>
-
-
-
 
 </body>
 </html>
